@@ -1,0 +1,29 @@
+body {
+    padding: 20px;
+}
+
+#player {
+    width: 100%;
+}
+
+/* ocultar imagen si songSelect es none */
+#songImage {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    /*margen superior */
+    margin-top: 20px;
+    width: 25%;
+    border-radius: 5%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    object-fit: cover;
+    object-position: center center;
+    aspect-ratio: 1/1;
+    display: none;
+    /* hide the image by default */
+}
+
+#songImage[songSelect="none"] {
+    display: none;
+    /* hide the image when songSelect is "none" */
+}
