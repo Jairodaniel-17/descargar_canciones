@@ -65,7 +65,7 @@ async def root(request: Request):
 def save_img_change_name(titulo, logo):
     titulo_normalizado = unicodedata.normalize("NFKD", titulo)
     # Limpiar el título para usarlo como nombre de archivo
-    caracteres_no_permitidos = r"[\/:*?<>|,]"
+    caracteres_no_permitidos = r"[\"\'/\\:*?<>|,]"
     titulo_limpio = re.sub(caracteres_no_permitidos, "", titulo_normalizado)
     print(titulo_limpio)
     response = requests.get(logo)
