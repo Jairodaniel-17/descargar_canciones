@@ -1,15 +1,17 @@
 # crear API con fastapi para descargar canciones en formato mp3 desde youtube y almacenarlas en una carpeta local
 
 import re
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from pytube import YouTube
 import unicodedata
 import requests
 import os
+import zipfile
 
 app = FastAPI()
 
@@ -52,6 +54,19 @@ async def root(request: Request):
     Returns:
         TemplateResponse: La respuesta que contiene la plantilla index.html renderizada.
     """
+    # retorna un diccionario con las canciones, escoger la key "songs"
+    canciones = lista_de_canciones()
+    # mensaje de bienvenida en la pagina principal
+    bienvenida = "Bienvenido querido usuario, puedes descargar y escuchar tus canciones de YouTube"
+    return templates.TemplateResponse(
+        "inicio.html",
+        {"request": request, "songs": canciones["songs"], "bienvenida": bienvenida},
+    )
+
+
+# prueba con test.html
+@app.get("/test")
+async def test(request: Request):
     # retorna un diccionario con las canciones, escoger la key "songs"
     canciones = lista_de_canciones()
     # mensaje de bienvenida en la pagina principal
@@ -118,6 +133,38 @@ async def download_song_two(item: Item):
         os.path.join(image_path, f"{new_name}.jpg"),
     )
     return {"message": new_name}
+
+
+def zip_files(zip_filename, source_dirs, arcname_prefix=""):
+    with zipfile.ZipFile(zip_filename, "w") as zipf:
+        for source_dir in source_dirs:
+            for root, _, files in os.walk(source_dir):
+                for file in files:
+                    rel_path = os.path.relpath(os.path.join(root, file), source_dir)
+                    arcname = (
+                        os.path.join(arcname_prefix, rel_path)
+                        if arcname_prefix
+                        else rel_path
+                    )
+                    zipf.write(os.path.join(root, file), arcname=arcname)
+
+
+# Ruta para descargar todas las canciones y logotipos en un archivo ZIP
+@app.get("/download-all")
+async def download_all():
+    try:
+        # Crear un archivo ZIP temporal
+        zip_filename = os.path.join(temp_path, "songs_and_logos.zip")
+
+        # Comprimir canciones y logotipos en el archivo ZIP
+        zip_files(zip_filename, [music_path, image_path], arcname_prefix="")
+
+        # Devolver el archivo ZIP como respuesta
+        return FileResponse(zip_filename, filename="songs_and_logos.zip")
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error al crear el archivo ZIP: {str(e)}"
+        )
 
 
 # uvicorn app:app --host localhost --port 7860 --reload
