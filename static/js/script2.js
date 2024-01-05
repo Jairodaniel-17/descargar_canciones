@@ -106,12 +106,12 @@ async function downloadSong() {
         });
 
         const data = await response.json();
-        downloadMessage.textContent = `Descarga exitosa. Título: ${data.message}, se autorefrescará en 5 segundos.`;
+        downloadMessage.textContent = `Descarga exitosa. Título: ${data.message}, se autorefrescará en 3 segundos.`;
 
         // refresh page to update song list
         setTimeout(function () {
             location.reload();
-        }, 5000);
+        }, 3000);
     } catch (error) {
         console.error('Error al descargar la canción:', error);
         downloadMessage.textContent = 'Error al descargar la canción.';
