@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import FileResponse
+from fastapi import File, UploadFile
 from pydantic import BaseModel
 from pytube import YouTube
 import unicodedata
@@ -14,6 +15,15 @@ import os
 import zipfile
 
 app = FastAPI()
+# verificar que existen las 4 carpetas necesarias
+if not os.path.exists("music"):
+    os.makedirs("music")
+if not os.path.exists("static"):
+    os.makedirs("static")
+if not os.path.exists("static/img"):
+    os.makedirs("static/img")
+if not os.path.exists("temp"):
+    os.makedirs("temp")
 
 # carpeta donde guardar las canciones
 music_path = os.getcwd() + "/music"
@@ -75,6 +85,30 @@ async def test(request: Request):
         "index.html",
         {"request": request, "songs": canciones["songs"], "bienvenida": bienvenida},
     )
+
+
+# Cambia la ruta de POST a GET
+@app.get("/downloadSong")
+async def download_song_by_name(song_name: str):
+    try:
+        # Verificar que el archivo exista en la carpeta de música
+        song_path = os.path.join(music_path, f"{song_name}.mp3")
+        if not os.path.exists(song_path):
+            raise HTTPException(
+                status_code=404, detail=f"Canción no encontrada: {song_name}"
+            )
+
+        # Devolver el archivo de la canción en modo descarga
+        return FileResponse(
+            song_path,
+            filename=f"{song_name}.mp3",
+            media_type="application/octet-stream",
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error al descargar la canción: {str(e)}"
+        )
 
 
 def save_img_change_name(titulo, logo):
@@ -167,7 +201,8 @@ async def download_all():
         )
 
 
-# uvicorn app:app --host localhost --port 7860 --reload
+# uvicorn app:app --host localhost --port  0-65535 --reload
+# 28024
 if __name__ == "__main__":
-    os.system("start http://localhost:7860/")
-    os.system("uvicorn app:app --host localhost --port 7860 --reload")
+    os.system("start http://localhost:28024/")
+    os.system("uvicorn app:app --host localhost --port 28024 --reload")

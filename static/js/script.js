@@ -1,19 +1,27 @@
-const songSelect = document.getElementById('songSelect');
+const cancionSeleccionada = document.getElementById('cancionSeleccionada');
 const player = document.getElementById('player');
 const audioSource = document.getElementById('audioSource');
 const songImage = document.getElementById('songImage');
 const downloadMessage = document.getElementById('downloadMessage');
+const nombreCancion = document.getElementById('nombreCancion');
 
-// Función para cargar la canción y la imagen al seleccionar una canción
-songSelect.addEventListener('change', async function () {
-    const selectedSong = songSelect.value;
+// ... (tu código existente)
+
+// Variable para almacenar todas las canciones
+const songListItems = document.querySelectorAll('#cancionSeleccionada li');
+
+// Evento clic en la lista de canciones
+cancionSeleccionada.addEventListener('click', async function (event) {
+    // Obtiene el texto dentro del elemento clickeado (el nombre de la canción)
+    const selectedSong = event.target.textContent;
 
     // Verifica si la opción seleccionada no es "none"
-    if (selectedSong !== "none") {
-        const songUrl = `/music/${selectedSong}`;
-        const imageUrl = `/static/img/${selectedSong.replace('.mp3', '')}.jpg`;
+    if (selectedSong) {
+        const songUrl = `/music/${selectedSong}.mp3`;
+        const imageUrl = `/static/img/${selectedSong}.jpg`;
 
         try {
+            // Carga la canción y la imagen
             await Promise.all([
                 loadAudio(songUrl),
                 loadImage(imageUrl)
@@ -22,16 +30,46 @@ songSelect.addEventListener('change', async function () {
             // Ambos han cargado correctamente, ahora podemos reproducir la canción
             player.load();
             player.play();
-            songImage.style.display = "block"; // Show the songImage element
+            songImage.style.display = "block"; // Muestra el elemento songImage
+            nombreCancion.textContent = selectedSong;
+
+            // Agregar el evento 'ended' al reproductor de audio
+            player.addEventListener('ended', function () {
+                // Cuando la canción actual haya terminado, elige una canción aleatoria
+                const randomIndex = Math.floor(Math.random() * songListItems.length);
+                const randomSong = songListItems[randomIndex];
+
+                // Configura la URL del reproductor de audio con la nueva canción aleatoria
+                const randomSongName = randomSong.textContent;
+                const randomSongUrl = `/music/${randomSongName}.mp3`;
+                const randomImageUrl = `/static/img/${randomSongName}.jpg`;
+
+                // Carga la nueva canción y la imagen aleatoria
+                Promise.all([
+                    loadAudio(randomSongUrl),
+                    loadImage(randomImageUrl)
+                ]).then(() => {
+                    // Reproduce la nueva canción aleatoria
+                    player.load();
+                    player.play();
+                    nombreCancion.textContent = randomSongName;
+                }).catch(error => {
+                    console.error('Error al cargar la canción o la imagen:', error);
+                });
+            });
         } catch (error) {
             console.error('Error al cargar la canción o la imagen:', error);
         }
     } else {
         // Si la opción seleccionada es "none", oculta la imagen del logo
         songImage.src = "";
-        location.reload(); // Refresh the page
+        location.reload(); // Recarga la página
     }
 });
+
+// Resto de tu código...
+
+
 
 // Función para cargar la canción
 async function loadAudio(url) {
@@ -79,3 +117,18 @@ async function downloadSong() {
         downloadMessage.textContent = 'Error al descargar la canción.';
     }
 }
+
+const searchInput = document.getElementById('searchInput');
+
+// Array para almacenar todas las canciones (sin filtros)
+const allSongs = Array.from(cancionSeleccionada.children);
+
+// Escucha los cambios en la barra de búsqueda
+searchInput.addEventListener('input', function () {
+    const searchTerm = searchInput.value.toLowerCase();
+    // Filtra las canciones según el término de búsqueda
+    const filteredSongs = allSongs.filter(song => song.textContent.toLowerCase().includes(searchTerm));
+    // Muestra solo las canciones filtradas
+    allSongs.forEach(song => song.style.display = filteredSongs.includes(song) ? 'block' : 'none');
+});
+

@@ -68,7 +68,7 @@ h1 {
     margin-right: auto;
     /*margen superior */
     margin-top: 20px;
-    width: 50%;
+    width: 67%;
     border-radius: 5%;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     object-fit: cover;
@@ -130,7 +130,7 @@ h1 {
 /* Estilos para el input de búsqueda */
 #searchInput {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     box-sizing: border-box;
     margin-bottom: 10px;
     background-color: #282828;
@@ -139,7 +139,7 @@ h1 {
     /* Color del texto */
     border: 1px solid #494848;
     /* Color del borde */
-    border-radius: 5px;
+    border-radius: 15px;
 }
 
 /* Estilos para el texto dentro del input de búsqueda */

@@ -1,57 +1,166 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Música</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="/static/css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/static/img/favicon.ico" type="image/x-icon">
+    <title>AppMusic🪸🎧</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/style2.css">
+    <!-- Agrega este script en la sección head de tu HTML -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Obtén el contenedor de la lista de canciones
+            const songListContainer = document.getElementById('cancionSeleccionada');
+            // Obtén el elemento de audio
+            const audioElement = document.getElementById('player');
+            // Obtén la imagen de la canción
+            const songImage = document.getElementById('songImage');
+            // Almacena el estado de reproducción
+            let isPlaying = false;
+            // Función para pausar o reanudar la canción al hacer clic en la imagen
+            function togglePlayPause() {
+                if (isPlaying) {
+                    audioElement.pause();
+                } else {
+                    audioElement.play();
+                }
+                isPlaying = !isPlaying;
+            }
+
+            // Agrega un evento de clic a la imagen para pausar o reanudar la canción
+            songImage.addEventListener('click', togglePlayPause);
+
+            // Agrega un evento de clic derecho al contenedor de la lista
+            songListContainer.addEventListener('contextmenu', function (event) {
+                // Detén el comportamiento predeterminado del menú contextual
+                event.preventDefault();
+
+                // Verifica si el clic derecho fue en un elemento de la lista
+                const songItem = event.target.closest('li');
+                if (songItem) {
+                    // Almacena la canción seleccionada para su posterior descarga
+                    const songName = songItem.textContent;
+
+                    // Realiza la solicitud de descarga al backend (cambió a GET)
+                    window.location.href = `/downloadSong?song_name=${encodeURIComponent(songName)}`;
+                }
+            });
+            // Muestra el contenedor-info al cargar la página
+            const containerInfo = document.querySelector('.container-info');
+            containerInfo.style.display = 'block';
+
+            // Oculta el contenedor-info después de 1 minuto
+            setTimeout(function () {
+                containerInfo.style.display = 'none';
+            }, 30000); // 60000 milisegundos = 1 minuto
+        });
+    </script>
+
+    <style>
+        .container-info {
+            background-color: #227ca0;
+            border: 1px solid #494848;
+            border-radius: 15px;
+            margin-top: 20px;
+            padding: 20px;
+            margin-left: 0px;
+            margin-right: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .container-info p {
+            margin-bottom: 10px;
+            color: #fff;
+            font-size: 16px;
+            align-items: center;
+            text-align: center;
+        }
+
+        #songImage {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            /*margen superior */
+            margin-top: 20px;
+            width: 65%;
+            border-radius: 5%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            object-fit: cover;
+            object-position: center center;
+            aspect-ratio: 1/1;
+            display: none;
+        }
+    </style>
 </head>
-<body>
-    <div class="container">
-        <h1 class="mt-3">Personal Song (Downloader❤️Player)</h1>
-        <p>{{bienvenida}}</p>
-         <!-- Descargar una canción con el método async POST /download, mostrar esa respuesta del servidor -->
-         <form class="mt-3" id="downloadForm">
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" id="urlInput" placeholder="URL de YouTube">
-                <button type="button" class="btn btn-success" onclick="downloadSong()">Descargar</button>
+
+<body class="bg-dark">
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Espacio Izquierdo -->
+            <div class="col-md-7">
+                <div class="container">
+                    <h1>Personal Songs 🎧❤️</h1>
+                    <p id="textoBienvenida">{{ bienvenida }}</p>
+                    <!-- Agregamos la barra de búsqueda -->
+                    <input type="text" class="form-control mb-3" id="searchInput" placeholder="Buscar canción">
+                    <!-- Contenedor de la lista con scroll -->
+                    <div class="song-list-container">
+                        <ul class="list-group" id="cancionSeleccionada">
+                            {% for song in songs %}
+                            <li class="list-group-item list-group-item-action" data-src="{{ song }}">{{
+                                song|replace('.mp3', '') }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <hr>
+                    <div class="mt-3">
+                        <!-- Espacio Inferior a la derecha boton para descargar todo abriendo este enlace: http://localhost:7860/download-all -->
+                        <a href="/download-all" class="btn btn-success" id="descargarTodo">Descargar todo</a>
+                    </div>
+
+                </div>
             </div>
-            <p id="downloadMessage"></p>
-        </form>
-        <!-- Contenedor para la fila de grilla -->
-        <div class="row mt-3">
-            <!-- Columna para el select -->
-            <div class="col-md-12 mb-3">
-                <select class="form-select" id="songSelect">
-                    {% for song in songs %}
-                        <option value="{{ song }}">{{ song|replace('.mp3', '') }}</option>
-                    {% endfor %}
-                    <option value="none" selected>Selecciona una canción</option>
-                </select>
-            </div>
-            
-            <!-- Columna para el reproductor de audio y el logo de la canción -->
-            <div class="col-md-12">
-                <audio controls id="player">
-                    <source id="audioSource" src="" type="audio/mpeg">
-                </audio>
-                <img id="songImage" src="">
+            <!-- Espacio Derecho -->
+            <div class="col-md-5">
+                <div class="container">
+                    <!-- Descargar una canción con el método async POST /download, mostrar esa respuesta del servidor -->
+                    <form class="mt-3" id="downloadForm">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="urlInput" placeholder="URL de YouTube">
+                            <button type="button" class="btn btn-success" onclick="downloadSong()">Descargar</button>
+                        </div>
+                        <p id="downloadMessage"></p>
+                    </form>
+                    <div class="mt-3">
+                        <p id="nombreCancion"></p>
+                        <img src="../static/img/Siento Luego Existo.jpg" alt="Imagen" class="img-fluid" id="songImage">
+                    </div>
+                    <div class="mt-3 audio-container">
+                        <audio controls style="width: 90%;" id="player">
+                            <source id="audioSource" src="" type="audio/mpeg">
+                            Tu navegador no soporta el elemento de audio.
+                        </audio>
+                    </div>
+                    <div class="container-info">
+                        <p>¡Haz clic en la imagen para pausar o reanudar la canción!</p>
+                        <p>Si haces clic derecho en una canción de la lista, se descargará.</p>
+                    </div>
+                </div>
             </div>
         </div>
-        
-       <h1 class="mt-3">Lista de canciones</h1>
-        <ul class="list-group mt-3" id="songList">
-            {% for song in songs %}
-                <li class="list-group-item">{{ song|replace('.mp3', '') }}</li>
-            {% endfor %}
-        </ul>
-        
+
     </div>
 
-
-    <script src="/static/js/script.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="/static/js/script2.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
 </body>
+
 </html>

@@ -7,7 +7,7 @@ call .venv\Scripts\activate
 :: Instalar requisitos
 ::pip install -r requirements.txt
 :: limpiar
-cls
+:: cls
 :: Ejecutar la aplicación
 python app.py
 

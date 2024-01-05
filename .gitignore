@@ -1,2 +1,7 @@
 __pycache__
 .venv
+
+# ignorar todos los archivos con extensión .mp3
+*.mp3
+# ignorar todos los archivos con extensión .jpg
+*.jpg
