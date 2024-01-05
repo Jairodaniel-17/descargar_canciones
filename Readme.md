@@ -4,7 +4,8 @@
 
 Este proyecto es un descargador y reproductor de música, el cual te permite descargar música de YouTube o YouTube Music y reproducirla de forma local, sin interrupciones, sin anuncios y sin necesidad de estar conectado a internet para escuchar tu música favorita, obviamente siempre que ya antes la hayas descargado.
 
-> [!IMPORTANT] **Recordatorio: Este proyecto es solo para fines educativos, no me hago responsable del mal uso que se le pueda dar.**
+>[!IMPORTANT]
+>**Recordatorio: Este proyecto es solo para fines educativos, no me hago responsable del mal uso que se le pueda dar.**
 
 ## Tecnologías utilizadas
 
